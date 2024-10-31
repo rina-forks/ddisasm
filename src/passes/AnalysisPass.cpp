@@ -21,21 +21,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include "AnalysisPass.h"
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/uuid/random_generator.hpp>
-
-// boost::random::mt19937 mt{100};
-// boost::uuids::basic_random_generator<boost::random::mt19937> GeneratorInst{mt};
-unsigned __int128 i = 0;
-std::mutex GeneratorLock;
+#include <gtirb/Node.hpp>
 
 boost::uuids::uuid Generator() {
-    std::scoped_lock lock{GeneratorLock};
-    unsigned __int128 a = ++i;
-     
-    boost::uuids::uuid uuid;
-    memcpy(uuid.data, &a, sizeof(a));
-    return uuid;
+    return gtirb::UUIDGenerator();
 }
 
 std::string AnalysisPass::getNameSlug() const
