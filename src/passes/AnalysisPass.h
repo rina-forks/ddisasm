@@ -29,6 +29,12 @@
 #include <list>
 #include <string>
 
+
+#include <boost/uuid/uuid_generators.hpp>
+
+boost::uuids::uuid Generator();
+
+
 namespace fs = boost::filesystem;
 
 struct AnalysisPassResult

@@ -1017,7 +1017,6 @@ void buildFunctions(gtirb::Module &Module, souffle::SouffleProgram &Program)
     std::map<gtirb::UUID, std::set<gtirb::UUID>> FunctionEntries;
     std::map<gtirb::Addr, gtirb::UUID> FunctionEntry2Function;
     std::map<gtirb::UUID, gtirb::UUID> FunctionNames;
-    boost::uuids::random_generator Generator;
 
     for(auto &T : *Program.getRelation("function_inference.function_entry_name"))
     {

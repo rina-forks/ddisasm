@@ -5,6 +5,8 @@
 # We use 3.12.1 to ease compatability with gtirb-pprinter.
 cmake_minimum_required(VERSION 3.12.1)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Get version
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" ver)
 

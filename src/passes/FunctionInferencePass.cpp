@@ -42,7 +42,7 @@ void FunctionInferencePass::transformImpl(AnalysisPassResult& Result, gtirb::Con
     std::map<gtirb::UUID, std::set<gtirb::UUID>> FunctionEntries;
     std::map<gtirb::Addr, gtirb::UUID> FunctionEntry2function;
     std::map<gtirb::UUID, gtirb::UUID> FunctionNames;
-    boost::uuids::random_generator Generator;
+    // boost::uuids::random_generator Generator;
     for(auto& Output : *Program->getRelation("function_entry_final"))
     {
         gtirb::Addr FunctionEntry(Output[0]);
