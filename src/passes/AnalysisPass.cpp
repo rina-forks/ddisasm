@@ -24,7 +24,7 @@
 #include <gtirb/Node.hpp>
 
 boost::uuids::uuid Generator() {
-    return gtirb::UUIDGenerator();
+    return gtirb::Node::UUIDGenerator();
 }
 
 std::string AnalysisPass::getNameSlug() const
