@@ -320,7 +320,7 @@ void removeSectionSymbols(gtirb::Context &Context, gtirb::Module &Module)
     for(const auto Uuid : Remove)
     {
         gtirb::Node *N = gtirb::Node::getByUUID(Context, Uuid);
-        if(auto *Symbol = dyn_cast_or_null<gtirb::Symbol>(N))
+        if(auto *Symbol = gtirb::dyn_cast_or_null<gtirb::Symbol>(N))
         {
             Module.removeSymbol(Symbol);
             SymbolInfo->erase(Uuid);
@@ -507,6 +507,7 @@ gtirb::SymAttributeSet buildSymbolicExpressionAttributes(
         {"TPOFF", gtirb::SymAttribute::TPOFF},
         {"DTPOFF", gtirb::SymAttribute::DTPOFF},
         {"NTPOFF", gtirb::SymAttribute::NTPOFF},
+        {"PAGE", gtirb::SymAttribute::PAGE},
         {"TLSGD", gtirb::SymAttribute::TLSGD},
         {"TLSLD", gtirb::SymAttribute::TLSLD},
         {"TLSLDM", gtirb::SymAttribute::TLSLDM},
@@ -519,6 +520,7 @@ gtirb::SymAttributeSet buildSymbolicExpressionAttributes(
         // MIPS
         {"HI", gtirb::SymAttribute::HI},
         {"LO", gtirb::SymAttribute::LO},
+        {"OFST", gtirb::SymAttribute::OFST},
         // X86
         {"INDNTPOFF", gtirb::SymAttribute::INDNTPOFF},
     };
@@ -862,7 +864,7 @@ void connectSymbolsToBlocks(gtirb::Context &Context, gtirb::Module &Module,
             if(SectionIndex == SHN_COMMON)
             {
                 gtirb::Node *Node = gtirb::Node::getByUUID(Context, Uuid);
-                if(auto *Symbol = dyn_cast_or_null<gtirb::Symbol>(Node);
+                if(auto *Symbol = gtirb::dyn_cast_or_null<gtirb::Symbol>(Node);
                    Symbol && Symbol->getAddress())
                 {
                     // Alignment is stored in the symbol's value field.
@@ -975,12 +977,12 @@ void connectSymbolsToBlocks(gtirb::Context &Context, gtirb::Module &Module,
     for(auto [Symbol, T] : ConnectToBlock)
     {
         auto [Node, AtEnd] = T;
-        if(gtirb::CodeBlock *CodeBlock = dyn_cast_or_null<gtirb::CodeBlock>(Node))
+        if(gtirb::CodeBlock *CodeBlock = gtirb::dyn_cast_or_null<gtirb::CodeBlock>(Node))
         {
             Symbol->setReferent(CodeBlock);
             Symbol->setAtEnd(AtEnd);
         }
-        else if(gtirb::DataBlock *DataBlock = dyn_cast_or_null<gtirb::DataBlock>(Node))
+        else if(gtirb::DataBlock *DataBlock = gtirb::dyn_cast_or_null<gtirb::DataBlock>(Node))
         {
             Symbol->setReferent(DataBlock);
             Symbol->setAtEnd(AtEnd);
@@ -993,7 +995,7 @@ void connectSymbolsToBlocks(gtirb::Context &Context, gtirb::Module &Module,
         for(auto Forward : *SymbolForwarding)
         {
             gtirb::Node *Node = gtirb::Node::getByUUID(Context, std::get<1>(Forward));
-            if(auto *Symbol = dyn_cast_or_null<gtirb::Symbol>(Node))
+            if(auto *Symbol = gtirb::dyn_cast_or_null<gtirb::Symbol>(Node))
             {
                 if(Symbol->hasReferent())
                 {
@@ -1711,6 +1713,30 @@ void performSanityChecks(AnalysisPassResult &Result, souffle::SouffleProgram &Pr
                 << "\t$ printf 'disassembly.known_block\\t0x" << std::hex << BlockB << "\\t"
                 << BlockKindB << "\\t" << std::dec << SizeB << "\\thint\\n' >> hints.csv\n"
                 << "\t$ ddisasm --hints ./hints.csv [...]\n";
+        Result.Warnings.push_back(WarnMsg.str());
+    }
+
+    auto MissingWeight = Program.getRelation("missing_weight");
+    for(auto &Output : *MissingWeight)
+    {
+        std::stringstream ErrorMsg;
+        std::string Missing;
+        Output >> Missing;
+        ErrorMsg << "Missing Weight:" << Missing << std::endl;
+        Messages.push_back(ErrorMsg.str());
+    }
+
+    auto UnexpectedNegativeWeight = Program.getRelation("unexpected_negative_heuristic_weight");
+    for(auto &Output : *UnexpectedNegativeWeight)
+    {
+        std::stringstream WarnMsg;
+        std::string Heuristic;
+        int64_t Weight;
+        Output >> Heuristic >> Weight;
+        WarnMsg << Heuristic << " was assigned a negative weight " << Weight
+                << " but it is designed as a positive heuristic.\n"
+                << "Positive heuristics are only computed for unresolved blocks "
+                << "but will not cause blocks to become unresolved." << std::endl;
         Result.Warnings.push_back(WarnMsg.str());
     }
 }

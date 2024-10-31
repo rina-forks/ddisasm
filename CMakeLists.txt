@@ -224,7 +224,9 @@ endif()
 # ---------------------------------------------------------------------------
 # gtirb
 # ---------------------------------------------------------------------------
-find_package(gtirb 2.0.0 REQUIRED)
+find_package(gtirb 2.2.0 REQUIRED)
+
+add_definitions(-DGTIRB_WRAP_UTILS_IN_NAMESPACE)
 
 # ---------------------------------------------------------------------------
 # pretty-printer
@@ -327,7 +329,7 @@ if(CAPSTONE)
   set(CSTOOL_VERSION "${CMAKE_MATCH_1}")
 endif()
 
-if(NOT CAPSTONE OR "${CSTOOL_VERSION}" VERSION_LESS "4.0.1")
+if(NOT CAPSTONE OR "${CSTOOL_VERSION}" VERSION_LESS "5.0.1")
   message(
     FATAL_ERROR
       " No Capstone installation found.\n"
@@ -335,7 +337,7 @@ if(NOT CAPSTONE OR "${CSTOOL_VERSION}" VERSION_LESS "4.0.1")
       "   You can get the latest version of Capstone at:\n"
       "       http://www.capstone-engine.org/\n"
       " - If Capstone is installed, make sure the installation location is in your PATH,\n"
-      "   and it is at least version 4.0.1.\n")
+      "   and it is at least version 5.0.1.\n")
 endif()
 
 if(NOT CAPSTONE_INCLUDE_DIR)
